@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="
+		http://www.springframework.org/schema/beans
+    	classpath:org/springframework/beans/factory/xml/spring-beans-4.3.xsd ">
+
+    <!-- 实例化bean -->
+    <bean id= "testMethodQuartz" class ="online.qsx.quartz.WeatherForecastJob"/>
+
+    <!-- job的配置开始 -->
+    <bean id="myJobDetail"
+          class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+        <property name="targetObject" ref="testMethodQuartz"/>
+        <property name="targetMethod" value="showWeatherForecast"/>
+    </bean>
+    <!-- job的配置结束 -->
+
+
+    <!-- 调度的配置开始 -->
+    <bean id="crontestJobTrigger" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
+        <property name="jobDetail" ref="myJobDetail"/>
+        <!-- Cron表达式“0/10 * * * * ?”意为：每隔10秒触发一次，获取中央气象局的天气数据。  -->
+        <property name="cronExpression" value="0/10 * * * * ?"/>
+    </bean>
+    <!-- 调度的配置结束 -->
+
+    <!-- 启动触发器的配置开始 -->
+    <bean name="startQuertz" lazy-init="false" autowire="no" class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+        <property name="triggers">
+            <list>
+                <ref bean="crontestJobTrigger" />
+            </list>
+        </property>
+    </bean>
+    <!-- 启动触发器的配置结束 -->
+
+</beans>
